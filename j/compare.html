@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>実家の片付けで最初にそろえる道具4種 — 公開データで見比べる比較ハブ</title>
+<style>
+  :root{
+    --bg:#f6f5f2; --panel:#ffffff; --ink:#22201c; --sub:#5f5a52;
+    --line:#e3ddd3; --accent:#7a5a2f; --accent-ink:#ffffff;
+    --chip:#efe9df; --chip-ink:#5b5347; --pr:#8a6a1f; --pr-bg:#fbf3dd;
+    --card:#fffdfa; --hi:#fff6e6; --hi-line:#e6c98a; --link:#8a5a1c;
+    --shadow:0 1px 2px rgba(40,30,15,.06),0 6px 18px rgba(40,30,15,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#171614; --panel:#211f1c; --ink:#efece6; --sub:#b3aca0;
+      --line:#3a3630; --accent:#caa76a; --accent-ink:#201a10;
+      --chip:#2c2924; --chip-ink:#cfc7ba; --pr:#e2c583; --pr-bg:#332b18;
+      --card:#242019; --hi:#2e2718; --hi-line:#6c5628; --link:#e0bd7f;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f5f2; --panel:#ffffff; --ink:#22201c; --sub:#5f5a52;
+    --line:#e3ddd3; --accent:#7a5a2f; --accent-ink:#ffffff;
+    --chip:#efe9df; --chip-ink:#5b5347; --pr:#8a6a1f; --pr-bg:#fbf3dd;
+    --card:#fffdfa; --hi:#fff6e6; --hi-line:#e6c98a; --link:#8a5a1c;
+    --shadow:0 1px 2px rgba(40,30,15,.06),0 6px 18px rgba(40,30,15,.05);
+  }
+  :root[data-theme="dark"]{
+    --bg:#171614; --panel:#211f1c; --ink:#efece6; --sub:#b3aca0;
+    --line:#3a3630; --accent:#caa76a; --accent-ink:#201a10;
+    --chip:#2c2924; --chip-ink:#cfc7ba; --pr:#e2c583; --pr-bg:#332b18;
+    --card:#242019; --hi:#2e2718; --hi-line:#6c5628; --link:#e0bd7f;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif;
+    line-height:1.75; font-size:16px; letter-spacing:.01em;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:820px; margin:0 auto; padding:0 16px 64px}
+  a{color:var(--link)}
+
+  /* PR bar */
+  .prbar{
+    background:var(--pr-bg); color:var(--pr); border-bottom:1px solid var(--line);
+    font-size:13px; line-height:1.6; padding:10px 16px;
+  }
+  .prbar .in{max-width:820px; margin:0 auto}
+  .prbar b{font-weight:700}
+
+  /* header */
+  header{padding:26px 0 8px}
+  .kicker{color:var(--accent); font-weight:700; font-size:13px; letter-spacing:.06em; margin:0 0 8px}
+  h1{font-size:25px; line-height:1.4; margin:0 0 12px; font-weight:800}
+  .lead{color:var(--sub); font-size:15px; margin:0 0 14px}
+  .asof{
+    display:inline-block; font-size:12.5px; color:var(--chip-ink); background:var(--chip);
+    border:1px solid var(--line); border-radius:999px; padding:4px 12px; margin-bottom:6px;
+  }
+
+  /* theme toggle */
+  .toolbar{display:flex; justify-content:flex-end; padding:8px 0 0}
+  .tgl{
+    background:var(--panel); color:var(--sub); border:1px solid var(--line);
+    border-radius:999px; padding:6px 12px; font-size:12.5px; cursor:pointer;
+    display:inline-flex; gap:6px; align-items:center;
+  }
+  .tgl:hover{border-color:var(--accent)}
+
+  /* order rail */
+  .rail{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:14px 16px; margin:18px 0 6px; box-shadow:var(--shadow);
+  }
+  .rail h2{font-size:15px; margin:0 0 10px}
+  .steps{display:flex; flex-wrap:wrap; gap:8px}
+  .step{
+    flex:1 1 150px; min-width:0; background:var(--chip); border:1px solid var(--line);
+    border-radius:10px; padding:9px 11px; font-size:13px;
+  }
+  .step b{display:block; font-size:12px; color:var(--accent); margin-bottom:2px}
+
+  /* selector */
+  .picker{
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    padding:16px; margin:22px 0; box-shadow:var(--shadow);
+  }
+  .picker h2{font-size:17px; margin:0 0 4px}
+  .picker .hint{color:var(--sub); font-size:13px; margin:0 0 12px}
+  .opts{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .opt{
+    text-align:left; background:var(--card); border:1px solid var(--line);
+    border-radius:11px; padding:11px 12px; font-size:13.5px; color:var(--ink);
+    cursor:pointer; line-height:1.5; transition:border-color .12s, background .12s;
+  }
+  .opt:hover{border-color:var(--accent)}
+  .opt[aria-pressed="true"]{border-color:var(--accent); background:var(--hi); box-shadow:inset 0 0 0 1px var(--accent)}
+  .opt .n{display:block; font-size:11.5px; color:var(--accent); font-weight:700; margin-bottom:3px}
+  .answer{
+    margin-top:12px; border:1px dashed var(--hi-line); background:var(--hi);
+    border-radius:12px; padding:14px; display:none;
+  }
+  .answer.on{display:block}
+  .answer .tool{font-weight:800; font-size:15px; margin:0 0 6px}
+  .answer .next{margin:0 0 12px; font-size:14px}
+  .answer .next b{color:var(--accent)}
+  .answer .acts{display:flex; flex-wrap:wrap; gap:8px}
+  .btn{
+    display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+    border-radius:999px; padding:8px 14px; font-size:13.5px; font-weight:700; cursor:pointer; border:1px solid transparent;
+  }
+  .btn.primary{background:var(--accent); color:var(--accent-ink)}
+  .btn.ghost{background:transparent; color:var(--link); border-color:var(--line)}
+  .btn.ghost:hover{border-color:var(--accent)}
+
+  /* category */
+  section.cat{margin:34px 0 0; scroll-margin-top:14px}
+  .cat-head{border-left:4px solid var(--accent); padding:2px 0 2px 12px; margin-bottom:8px}
+  .cat-head .idx{font-size:12px; color:var(--accent); font-weight:700; letter-spacing:.05em}
+  .cat-head h2{font-size:20px; margin:2px 0 0; font-weight:800}
+  .cat-intro{color:var(--sub); font-size:14.5px; margin:8px 0 14px}
+
+  /* comparison table -> cards on mobile */
+  .cmp{width:100%; border-collapse:separate; border-spacing:0; margin:0}
+  .cmp caption{caption-side:top; text-align:left; font-size:12px; color:var(--sub); padding:0 0 8px}
+  .cmp thead th{
+    text-align:left; font-size:12px; color:var(--sub); font-weight:700;
+    padding:8px 10px; border-bottom:2px solid var(--line); white-space:nowrap;
+  }
+  .cmp tbody td{
+    padding:11px 10px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top;
+  }
+  .cmp tbody tr{background:var(--card)}
+  .pname{font-weight:800; font-size:14.5px; line-height:1.45}
+  .pmeta{color:var(--sub); font-size:12px; margin-top:3px}
+  .rev-num{font-weight:700}
+  .rev-none{color:var(--sub); font-size:12.5px}
+  .cell-label{display:none}
+  .go{white-space:nowrap}
+  .go a{
+    display:inline-flex; align-items:center; gap:5px; text-decoration:none;
+    background:var(--accent); color:var(--accent-ink); border-radius:999px;
+    padding:7px 13px; font-size:13px; font-weight:700;
+  }
+  .go .pending{
+    display:inline-block; color:var(--sub); font-size:12px; border:1px dashed var(--line);
+    border-radius:999px; padding:6px 11px;
+  }
+  .go .pr{display:block; font-size:10.5px; color:var(--sub); margin-top:4px; font-weight:400}
+
+  .verdict{
+    margin:12px 0 0; background:var(--panel); border:1px solid var(--line);
+    border-radius:12px; padding:12px 14px; box-shadow:var(--shadow);
+  }
+  .verdict h3{font-size:13px; margin:0 0 8px; color:var(--accent); letter-spacing:.04em}
+  .verdict ul{margin:0; padding-left:18px}
+  .verdict li{font-size:13.5px; margin:4px 0}
+  .verdict .note{color:var(--sub); font-size:12.5px; margin-top:8px}
+
+  /* summary matrix */
+  .summary{margin:38px 0 0}
+  .summary h2{font-size:19px; margin:0 0 12px}
+  .mtx{width:100%; border-collapse:separate; border-spacing:0}
+  .mtx td{padding:11px 12px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top}
+  .mtx tr td:first-child{font-weight:700; width:46%}
+  .mtx tr:last-child td{border-bottom:none}
+
+  /* next step / internal link */
+  .handoff{
+    margin:30px 0 0; background:var(--panel); border:1px solid var(--line);
+    border-radius:16px; padding:18px; box-shadow:var(--shadow);
+  }
+  .handoff h2{font-size:17px; margin:0 0 6px}
+  .handoff p{color:var(--sub); font-size:14px; margin:0 0 12px}
+
+  footer{margin:34px 0 0; padding-top:18px; border-top:1px solid var(--line); color:var(--sub); font-size:12.5px}
+  footer p{margin:0 0 8px}
+  .src{font-size:11.5px}
+  .src b{color:var(--ink)}
+
+  @media (max-width:600px){
+    body{font-size:15px}
+    h1{font-size:22px}
+    .opts{grid-template-columns:1fr}
+    .cmp thead{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+    .cmp, .cmp tbody, .cmp tr, .cmp td{display:block; width:100%}
+    .cmp tbody tr{
+      border:1px solid var(--line); border-radius:12px; margin:0 0 12px; padding:4px 2px; box-shadow:var(--shadow);
+    }
+    .cmp tbody td{border-bottom:1px dashed var(--line); padding:9px 12px}
+    .cmp tbody td:last-child{border-bottom:none}
+    .cell-label{
+      display:block; font-size:11px; color:var(--accent); font-weight:700; letter-spacing:.03em; margin-bottom:3px;
+    }
+    .mtx tr td:first-child{width:auto; display:block; padding-bottom:2px}
+    .mtx td{border-bottom:none; padding:6px 4px}
+    .mtx tr{display:block; border-bottom:1px solid var(--line); padding:6px 0}
+  }
+</style>
+</head>
+<body>
+
+<div class="prbar"><div class="in"><b>【PR】</b>本記事はアフィリエイト広告を含みます。掲載内容は各通販サイト・メーカー公式ページの<b>公開情報(価格・仕様・レビュー件数)</b>に基づく比較で、使用体験ではありません。</div></div>
+
+<div class="wrap">
+
+  <div class="toolbar">
+    <button class="tgl" id="themeBtn" type="button" aria-label="配色を切り替え"><span id="themeIcon">◐</span><span id="themeLbl">配色</span></button>
+  </div>
+
+  <header>
+    <p class="kicker">実家の片付け・生前整理の段取り</p>
+    <h1>実家の片付けで最初にそろえる道具4種<br>——「書類 → 大物 → 思い出」の順で見比べる</h1>
+    <p class="lead">道具を4カテゴリ(エンディングノート/手提げ金庫/布団圧縮袋/大容量フォトアルバム)に絞り、<b>同じ種類の商品同士だけ</b>を、誰でも確認できる公開データで並べています。カテゴリをまたいだ比較はしていません。</p>
+    <span class="asof">数値は 2026年8月時点の公開データ(価格・在庫は変動します)</span>
+  </header>
+
+  <!-- 段取りレール -->
+  <div class="rail" aria-label="片付けの段取り">
+    <h2>道具は「帰省の予定のどこで使うか」で選ぶ</h2>
+    <div class="steps">
+      <div class="step"><b>1回目</b>書類・貴重品を集めて鍵をかける</div>
+      <div class="step"><b>2回目</b>押し入れの大物(布団)の体積を減らす</div>
+      <div class="step"><b>3回目</b>写真・思い出品の受け皿を決める</div>
+    </div>
+  </div>
+
+  <!-- 状況セレクター(次の一歩) -->
+  <div class="picker" aria-label="状況から次の一歩を出す">
+    <h2>いまの状況を1つ選ぶと、次の一歩が出ます</h2>
+    <p class="hint">4つ全部そろえるより、段取りが進むたびに1つずつ足すほうが、出費も判断も軽く済みます。</p>
+    <div class="opts" id="opts">
+      <button class="opt" type="button" data-key="talk" aria-pressed="false"><span class="n">状況 A</span>まだ親と片付けの話ができていない</button>
+      <button class="opt" type="button" data-key="start" aria-pressed="false"><span class="n">状況 B</span>次の帰省で片付けを始める予定</button>
+      <button class="opt" type="button" data-key="closet" aria-pressed="false"><span class="n">状況 C</span>押し入れ・物置の大物に着手する</button>
+      <button class="opt" type="button" data-key="photo" aria-pressed="false"><span class="n">状況 D</span>写真・アルバムの整理に着手する</button>
+    </div>
+    <div class="answer" id="answer" role="status" aria-live="polite">
+      <p class="tool" id="ansTool"></p>
+      <p class="next" id="ansNext"></p>
+      <div class="acts">
+        <a class="btn primary" id="ansJump" href="#">この道具を見る</a>
+        <a class="btn ghost" href="#handoff">自力か業者か迷うとき</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- カテゴリ1 -->
+  <section class="cat" id="cat-note">
+    <div class="cat-head">
+      <span class="idx">カテゴリ 1 / 4</span>
+      <h2>エンディングノート</h2>
+    </div>
+    <p class="cat-intro">片付けは「捨てる」より先に「書く」から。口座・保険・連絡先がどこにあるかを1冊にまとめると、その後の片付け全体の地図になります。「一緒に書かない?」はノートを開く自然な入口になります。</p>
+    <table class="cmp">
+      <caption>同一カテゴリ内の比較(価格・仕様・レビューは 2026年8月時点の公開データ)</caption>
+      <thead>
+        <tr><th>商品名</th><th>参考価格</th><th>レビュー(件数・平均)</th><th>仕様の要点</th><th>向いている人</th><th>リンク</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">コクヨ もしもの時に役立つノート LES-E101</span><span class="pmeta">外部言及: 評価誌LDK×終活専門家の解説記事で、記入項目のそろった定番として紹介</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>2,475円<span class="pmeta">コクヨ公式通販・税込。販売店で変動</span></td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-none">—</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>B5・64ページ。口座・保険・カード等の記入欄、CD-Rが入るディスクケースと写真ポケット付き</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>迷ったら基準にできる定番。記入欄の作りと保存性で選びたい人</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><a href="https://a.r10.to/hFiv3D" rel="nofollow sponsored noopener" target="_blank">楽天で見る</a><span class="pr">PR・アフィリエイト</span></td>
+        </tr>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">リベラル社 一番わかりやすいエンディングノート</span><span class="pmeta">外部言及: マイベスト エンディングノート部門ランキング1位</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>1,188円<span class="pmeta">書籍・定価</span></td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-none">—</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>各項目に書き方の解説付き。暗証番号を隠すスクラッチシール付属・64ページ</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>解説を読みながら親子で順に埋めたい人</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><a href="https://a.r10.to/h5vbOj" rel="nofollow sponsored noopener" target="_blank">楽天で見る</a><span class="pr">PR・アフィリエイト</span></td>
+        </tr>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">扶桑社 一番かんたんエンディングノート</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>850円<span class="pmeta">書籍・定価</span></td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-none">—</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>軽めの構成。暗証番号保護シール・自筆遺言シート・緊急連絡先シートの付録3点</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>「分厚いと親が構えてしまう」家庭。まず軽い1冊から始めたい人</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><a href="https://a.r10.to/hPi3k5" rel="nofollow sponsored noopener" target="_blank">楽天で見る</a><span class="pr">PR・アフィリエイト</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="verdict">
+      <h3>このカテゴリの見どころ</h3>
+      <ul>
+        <li>記入欄の作りと保存性の定番 → <b>コクヨ</b>(帳簿欄・付属ケースつき)</li>
+        <li>解説を読みながら親子で書く → <b>リベラル社</b></li>
+        <li>親が「分厚い本は疲れる」タイプ → <b>扶桑社</b>(850円・付録つきで一番軽い)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- カテゴリ2 -->
+  <section class="cat" id="cat-safe">
+    <div class="cat-head">
+      <span class="idx">カテゴリ 2 / 4</span>
+      <h2>手提げ金庫</h2>
+    </div>
+    <p class="cat-intro">1回目の帰省は「集めて、鍵をかける」だけで十分です。通帳・印鑑・年金手帳・保険証書を1か所に集め、置き場所をエンディングノートに書けば、次の帰省で探し直す時間が消えます。泥棒対策というより<b>家族内で「大事な物はここ」を固定する道具</b>です。</p>
+    <table class="cmp">
+      <caption>同一カテゴリ内の比較(価格・仕様・レビューは 2026年8月時点の公開データ)</caption>
+      <thead>
+        <tr><th>商品名</th><th>参考価格</th><th>レビュー(件数・平均)</th><th>仕様の要点</th><th>向いている人</th><th>リンク</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">カール事務器 キャッシュボックス CB-8250</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>3,800円<span class="pmeta">楽天・オフィスランド。販売店で変動</span></td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-none">—(レビュー6件と少ないため数値は掲載していません)</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>A6「そとレジ」型・鍵2本付属・約900g。持ち運びハンドル付き</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>部屋を移動しながら集める使い方。カテゴリ内の低価格帯</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><a href="https://a.r10.to/hPPlzD" rel="nofollow sponsored noopener" target="_blank">楽天で見る</a><span class="pr">PR・アフィリエイト</span></td>
+        </tr>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">アイリスオーヤマ 手提げ金庫 SBX-A5</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>5,420円〜<span class="pmeta">価格.com掲載。色・スリム型で変動</span></td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-none">—</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>A5・ダイヤル式。通帳・印鑑・現金の集約に十分なサイズ</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>鍵を持ち歩かず、通帳・印鑑・現金をコンパクトに集約したい人</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><a href="https://a.r10.to/hPZmj4" rel="nofollow sponsored noopener" target="_blank">楽天で見る</a><span class="pr">PR・アフィリエイト</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="verdict">
+      <h3>このカテゴリの見どころ</h3>
+      <ul>
+        <li>低価格帯で持ち歩き重視 → <b>カール事務器</b>(A6・鍵式・持ち手つき)</li>
+        <li>ダイヤル式でコンパクト集約 → <b>アイリスオーヤマ</b>(A5)</li>
+      </ul>
+      <p class="note">金庫の設置場所はエンディングノートに書き添えると、ノートと箱がセットで機能します。</p>
+    </div>
+  </section>
+
+  <!-- カテゴリ3 -->
+  <section class="cat" id="cat-futon">
+    <div class="cat-head">
+      <span class="idx">カテゴリ 3 / 4</span>
+      <h2>布団圧縮袋</h2>
+    </div>
+    <p class="cat-intro">2回目の帰省は押し入れの「体積」から減らします。使わない来客用布団は、圧縮すれば体積が大きく減り、作業スペースが生まれます。圧縮は後戻りできる作業なので、「捨てよう」ではなく「小さくしよう」と切り出しやすい入口です。</p>
+    <table class="cmp">
+      <caption>同一カテゴリ内の比較(価格・仕様・レビューは 2026年8月時点の公開データ)</caption>
+      <thead>
+        <tr><th>商品名</th><th>参考価格</th><th>レビュー(件数・平均)</th><th>仕様の要点</th><th>向いている人</th><th>リンク</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">アクアトーク 日本製ふとん圧縮袋</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>サイズ選択式(S〜XL)<span class="pmeta">サイズで変動</span></td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-num">127件・平均4.48</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>日本製・バルブ式・マチ付き・品質保証書付</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>「安い袋は空気が戻った」経験がある人。押し入れに合わせてサイズを選びたい人</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><span class="pending">リンク準備中</span><span class="pr">楽天リンク発行後に差し替え</span></td>
+        </tr>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">レック バルサン ふとん圧縮袋</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>LL2枚入 3,980円<span class="pmeta">メーカー直営店・税込。サイズ展開で変動</span></td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-none">—</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>防虫成分をフィルムに配合。135×100cm</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>次の帰省まで数ヶ月空く押し入れで、圧縮したまま長期保管する予定の人</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><a href="https://a.r10.to/h5bJBZ" rel="nofollow sponsored noopener" target="_blank">楽天で見る</a><span class="pr">PR・アフィリエイト</span></td>
+        </tr>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">アール ふとん圧縮袋 RE-003</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>販売店で変動</td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-num">40件・平均3.75</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>ふとん一式まるごと用の大型2枚入(150×100cm)。電動ポンプ・吸引ポンプ対応</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>掛け・敷きを分けず、来客用ふとん一式を丸ごと1袋で処理したい人</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><a href="https://a.r10.to/hPvSyJ" rel="nofollow sponsored noopener" target="_blank">楽天で見る</a><span class="pr">PR・アフィリエイト</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="verdict">
+      <h3>このカテゴリの見どころ</h3>
+      <ul>
+        <li>公開レビューの実績で選ぶ → <b>アクアトーク</b>(日本製・127件/4.48)</li>
+        <li>数ヶ月単位で保管する → <b>レック</b>(防虫成分入り)</li>
+        <li>一式をまとめて1袋に → <b>アール</b>(大型・ポンプ対応・40件/3.75)</li>
+      </ul>
+      <p class="note">圧縮した布団に「圧縮した日付」のメモを貼っておくと、次の帰省で「1年触らなかったもの」として手放す相談がしやすくなります。</p>
+    </div>
+  </section>
+
+  <!-- カテゴリ4 -->
+  <section class="cat" id="cat-album">
+    <div class="cat-head">
+      <span class="idx">カテゴリ 4 / 4</span>
+      <h2>大容量フォトアルバム</h2>
+    </div>
+    <p class="cat-intro">片付けで最も手が止まるのが写真です。1枚ずつ「要る・要らない」を判断する代わりに、<b>「バラ写真もアルバムの中身も、全部この1冊に集約する」受け皿を先に決める</b>と、判断の回数そのものが減ります。写真整理は最終盤に回すのが定石です。</p>
+    <table class="cmp">
+      <caption>同一カテゴリ内の比較(価格・仕様・レビューは 2026年8月時点の公開データ)</caption>
+      <thead>
+        <tr><th>商品名</th><th>参考価格</th><th>レビュー(件数・平均)</th><th>仕様の要点</th><th>向いている人</th><th>リンク</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">万丈 メガアルバム ATSUI OMOI</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>1500枚版 6,980円〜<span class="pmeta">容量(800/1200/1500枚)で変動</span></td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-num">1200枚版 335件・平均4.28<br>1500枚版 248件・平均4.42</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>L判800/1200/1500枚の大容量シリーズ</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>古いアルバム数十冊分を1〜2冊に集約する「実家の全写真の受け皿」用途</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><a href="https://a.r10.to/h5ba7R" rel="nofollow sponsored noopener" target="_blank">楽天で見る</a><span class="pr">PR・アフィリエイト</span></td>
+        </tr>
+        <tr>
+          <td data-th="商品名"><span class="cell-label">商品名</span><span class="pname">ナカバヤシ 超透明ポケットアルバム CTPL-300</span></td>
+          <td data-th="価格"><span class="cell-label">参考価格</span>3,980円<span class="pmeta">楽天・フエルショップ。販売店で変動</span></td>
+          <td data-th="レビュー"><span class="cell-label">レビュー</span><span class="rev-none">—</span></td>
+          <td data-th="仕様"><span class="cell-label">仕様の要点</span>L判312枚・超透明ポケットで写真がそのまま見える</td>
+          <td data-th="向く人"><span class="cell-label">向いている人</span>「父の写真」「家族旅行」など人別・テーマ別に数冊へ分けたい人</td>
+          <td class="go" data-th="リンク"><span class="cell-label">リンク</span><a href="https://a.r10.to/hgkLZC" rel="nofollow sponsored noopener" target="_blank">楽天で見る</a><span class="pr">PR・アフィリエイト</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="verdict">
+      <h3>このカテゴリの見どころ</h3>
+      <ul>
+        <li>物量勝負の集約 → <b>万丈</b>(1200〜1500枚クラス。レビュー実績もカテゴリ内最多)</li>
+        <li>人別・テーマ別に分類 → <b>ナカバヤシ</b>(312枚×冊数で構成)</li>
+      </ul>
+      <p class="note">写真整理を先にやると思い出話で1日が終わります。それはそれで良い時間ですが、片付けの日とは分けるのがおすすめです。</p>
+    </div>
+  </section>
+
+  <!-- まとめマトリクス -->
+  <section class="summary">
+    <h2>まとめ:状況に合わせて1つずつ足す</h2>
+    <table class="mtx">
+      <tbody>
+        <tr><td>まだ親と何も話せていない</td><td>エンディングノート1冊だけ(「一緒に書かない?」が最初の声かけになります)</td></tr>
+        <tr><td>次の帰省で片付けを始める</td><td>エンディングノート+手提げ金庫(初日は「集めて鍵をかける」まで)</td></tr>
+        <tr><td>押し入れ・物置に着手する</td><td>布団圧縮袋(圧縮は後戻りできるので合意形成が軽い)</td></tr>
+        <tr><td>写真・アルバムに着手する</td><td>大容量フォトアルバム(受け皿を先に決める)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 内部導線:業者判断材料 -->
+  <div class="handoff" id="handoff">
+    <h2>自力で進めるか、業者に頼むか迷ったら</h2>
+    <p>道具をそろえても、量や搬出条件によっては業者を検討したほうが早い場面があります。費用の内訳と、見積書のどこを見るかを、ブラウザ内だけで(外部送信なし)整理できるツールを用意しています。</p>
+    <a class="btn primary" href="cost_simulator.html">費用のあたりをつける →</a>
+  </div>
+
+  <footer>
+    <p>掲載価格・仕様・在庫・レビューは変動します。購入前に各商品ページで最新情報をご確認ください。本記事のリンク経由でご購入いただくと運営者に報酬が支払われることがありますが、商品価格はどの経路からのご購入でも同一です。</p>
+    <p>本記事は運営者が確認した公開データ(価格・仕様・レビュー件数)に基づく比較であり、使用体験や特定の効果を保証するものではありません。比較はすべて同一カテゴリ内でのみ行っています。</p>
+    <p class="src"><b>データの出典と時点:</b> 価格・仕様・レビュー件数は2026年8月時点に各通販サイト・メーカー公式ページで確認した公開値です。レビュー欄の「—」は、公開件数が少ない、または確認待ちのため数値を掲載していない項目です(次回の集計で反映します)。</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // --- テーマ切り替え(端末設定を初期値に、選択はローカル保存・外部送信なし) ---
+  var root=document.documentElement, btn=document.getElementById("themeBtn"),
+      icon=document.getElementById("themeIcon"), lbl=document.getElementById("themeLbl");
+  var saved=null;
+  try{ saved=localStorage.getItem("hikaku_theme"); }catch(e){}
+  if(saved==="light"||saved==="dark"){ root.setAttribute("data-theme",saved); }
+  function paint(){
+    var dark;
+    var attr=root.getAttribute("data-theme");
+    if(attr){ dark=(attr==="dark"); }
+    else{ dark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches; }
+    icon.textContent=dark?"☀":"☾";
+    lbl.textContent=dark?"明るく":"暗く";
+  }
+  paint();
+  btn.addEventListener("click",function(){
+    var attr=root.getAttribute("data-theme");
+    var cur;
+    if(attr){ cur=attr; }
+    else{ cur=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light"; }
+    var next=(cur==="dark")?"light":"dark";
+    root.setAttribute("data-theme",next);
+    try{ localStorage.setItem("hikaku_theme",next); }catch(e){}
+    paint();
+  });
+
+  // --- 状況セレクター:選ぶと「先にそろえる道具+次の一歩」を出す ---
+  var MAP={
+    talk:{
+      tool:"先にそろえる道具:エンディングノート1冊だけ",
+      next:"<b>次の一歩:</b>「実家を片付けよう」ではなく「もしもの時のことを1冊に書いておかない?」と、ノートを一緒に開くところから。まず1冊だけ。",
+      jump:"#cat-note"
+    },
+    start:{
+      tool:"先にそろえる道具:エンディングノート+手提げ金庫",
+      next:"<b>次の一歩:</b>初日は「集めて、鍵をかける」まで。通帳・印鑑・保険証書を1か所に集め、置き場所をノートに書き添えます。",
+      jump:"#cat-safe"
+    },
+    closet:{
+      tool:"先にそろえる道具:布団圧縮袋",
+      next:"<b>次の一歩:</b>「捨てよう」ではなく「小さくしよう」と提案。圧縮は後戻りできるので合意が軽く、押し入れに作業スペースが生まれます。",
+      jump:"#cat-futon"
+    },
+    photo:{
+      tool:"先にそろえる道具:大容量フォトアルバム",
+      next:"<b>次の一歩:</b>1枚ずつ判断する前に「全部この1冊に集約する」受け皿を先に決めると、判断の回数が減ります。片付けの最終盤に。",
+      jump:"#cat-album"
+    }
+  };
+  var opts=document.getElementById("opts"),
+      ans=document.getElementById("answer"),
+      aTool=document.getElementById("ansTool"),
+      aNext=document.getElementById("ansNext"),
+      aJump=document.getElementById("ansJump");
+
+  function show(key){
+    var m=MAP[key]; if(!m) return;
+    aTool.textContent=m.tool;
+    aNext.innerHTML=m.next;
+    aJump.setAttribute("href",m.jump);
+    ans.classList.add("on");
+    var list=opts.querySelectorAll(".opt");
+    for(var i=0;i<list.length;i++){
+      list[i].setAttribute("aria-pressed", list[i].getAttribute("data-key")===key ? "true":"false");
+    }
+  }
+  opts.addEventListener("click",function(ev){
+    var b=ev.target.closest(".opt"); if(!b) return;
+    var key=b.getAttribute("data-key");
+    show(key);
+    try{ localStorage.setItem("hikaku_situation",key); }catch(e){}
+  });
+  var prev=null;
+  try{ prev=localStorage.getItem("hikaku_situation"); }catch(e){}
+  if(prev&&MAP[prev]){ show(prev); }
+})();
+</script>
+</body>
+</html>
