@@ -1,0 +1,9 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>認可コード</title>
+<style>body{font-family:system-ui,Meiryo,sans-serif;background:#f6f7fb;color:#1a2233;margin:0;padding:24px}main{max-width:720px;margin:auto;background:#fff;border-radius:12px;padding:24px;border:1px solid #dde3ec}h1{font-size:20px}textarea{width:100%;height:120px;font-size:14px;font-family:ui-monospace,monospace}button{font-size:16px;padding:10px 16px;border-radius:8px;border:1px solid #2a6df4;background:#2a6df4;color:#fff}p{line-height:1.7}.ok{color:#13733a;font-weight:bold}</style>
+<main><h1>認可コード</h1><p id="msg">読み込み中…</p><textarea id="code" readonly></textarea><p><button id="copy">コードをコピー</button> <span id="done"></span></p>
+<p>このコードを threads_oauth.bat に貼り付けてください(該当するアカウントの行)。</p></main>
+<script>
+const q=new URLSearchParams(location.search);const c=(q.get('code')||'').split('#_')[0];const st=q.get('state')||'';
+document.getElementById('code').value=c;document.getElementById('msg').textContent=c?('アカウント: '+st+' の認可コードです。'):('コードがありません。エラー: '+(q.get('error_description')||q.get('error')||'なし'));
+document.getElementById('copy').onclick=async()=>{try{await navigator.clipboard.writeText(c);document.getElementById('done').textContent='コピーしました';document.getElementById('done').className='ok'}catch(e){document.getElementById('code').select()}};
+</script></html>
