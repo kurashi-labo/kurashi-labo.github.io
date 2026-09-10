@@ -1,0 +1,359 @@
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1c2430; --sub:#5b6672;
+    --line:#e4e8ee; --brand:#2f6d5b; --brand-ink:#ffffff;
+    --a:#3b82a0; --b:#8a6d3b; --c:#7a5aa0; --chip:#eef1f5; --chipsel:#e5f0ec;
+    --shadow:0 1px 2px rgba(20,30,45,.06),0 8px 24px rgba(20,30,45,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1418; --card:#171d23; --ink:#e8edf2; --sub:#9aa6b2;
+      --line:#28313a; --brand:#4fb597; --brand-ink:#0c1512;
+      --a:#6fb6d0; --b:#c9a86a; --c:#b79ae0; --chip:#1e262d; --chipsel:#1d2e29;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.4);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
+    line-height:1.7; -webkit-text-size-adjust:100%;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{max-width:430px; margin:0 auto; padding:20px 16px 40px}
+  header{text-align:center; margin:8px 0 18px}
+  .eyebrow{font-size:12px; letter-spacing:.08em; color:var(--brand); font-weight:700; margin:0 0 6px}
+  h1{font-size:21px; line-height:1.4; margin:0 0 8px; letter-spacing:.01em}
+  .lead{font-size:13.5px; color:var(--sub); margin:0}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    box-shadow:var(--shadow); padding:18px 16px; margin:14px 0;
+  }
+  .howto{font-size:13px; color:var(--sub); background:var(--chip); border-radius:12px; padding:12px 14px; margin:0 0 4px}
+  .howto b{color:var(--ink)}
+  .progress{display:flex; align-items:center; gap:10px; margin:2px 2px 14px; font-size:12px; color:var(--sub)}
+  .bar{flex:1; height:6px; background:var(--chip); border-radius:99px; overflow:hidden}
+  .bar > span{display:block; height:100%; width:0; background:var(--brand); border-radius:99px; transition:width .3s ease}
+  .qnum{font-size:12px; color:var(--brand); font-weight:700; letter-spacing:.05em; margin:0 0 4px}
+  .qtext{font-size:16.5px; font-weight:700; margin:0 0 14px; line-height:1.5}
+  .opts{display:flex; flex-direction:column; gap:10px}
+  .opt{
+    display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left;
+    background:var(--chip); border:1.5px solid transparent; color:var(--ink);
+    border-radius:13px; padding:13px 14px; font:inherit; font-size:14.5px; cursor:pointer;
+    transition:border-color .15s, background .15s, transform .05s;
+  }
+  .opt:active{transform:scale(.99)}
+  .opt:hover{border-color:var(--line)}
+  .opt.sel{background:var(--chipsel); border-color:var(--brand)}
+  .opt .mk{
+    flex:none; width:26px; height:26px; border-radius:8px; display:grid; place-items:center;
+    font-weight:800; font-size:13px; color:var(--brand-ink); background:var(--brand); margin-top:1px;
+  }
+  .opt.sel .mk{box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 25%,transparent)}
+  .nav{display:flex; gap:10px; margin-top:16px}
+  .btn{
+    flex:1; border:1px solid var(--line); background:var(--card); color:var(--ink);
+    border-radius:12px; padding:12px 14px; font:inherit; font-size:14.5px; font-weight:700; cursor:pointer;
+  }
+  .btn:disabled{opacity:.4; cursor:not-allowed}
+  .btn.primary{background:var(--brand); color:var(--brand-ink); border-color:var(--brand)}
+  .btn.ghost{background:transparent}
+  .hidden{display:none !important}
+
+  /* result */
+  .rtype{font-size:12px; color:var(--brand); font-weight:700; letter-spacing:.06em; margin:0 0 6px}
+  .rname{font-size:22px; font-weight:800; margin:0 0 4px}
+  .rtally{font-size:12.5px; color:var(--sub); margin:0 0 14px}
+  .rlabel{font-size:12px; letter-spacing:.05em; color:var(--sub); font-weight:700; margin:16px 0 6px}
+  .rdesc{font-size:14.5px; margin:0}
+  .step{background:var(--chipsel); border:1px solid var(--line); border-radius:13px; padding:14px; margin-top:8px}
+  .step .st{font-size:13px; font-weight:800; margin:0 0 4px; color:var(--brand)}
+  .step p{margin:0; font-size:14px}
+  .step .ex{font-size:13px; color:var(--sub); margin:6px 0 0}
+
+  /* tie chooser */
+  .tie{border-color:var(--brand)}
+  .tie .qtext{margin-bottom:6px}
+  .tie .hint{font-size:13px; color:var(--sub); margin:0 0 12px}
+
+  /* funnel CTA */
+  .cta{background:var(--card); border:1px solid var(--brand); border-radius:16px; padding:18px 16px; margin-top:16px}
+  .cta h2{font-size:16px; margin:0 0 8px}
+  .cta p{font-size:13.5px; color:var(--sub); margin:0 0 6px}
+  .cta .price{font-size:13px; color:var(--ink); font-weight:700; margin:4px 0 14px}
+  .cta ul{margin:0 0 14px; padding-left:1.1em; font-size:13.5px}
+  .cta ul li{margin:3px 0}
+  .ctabtn{
+    display:block; text-align:center; text-decoration:none;
+    background:var(--brand); color:var(--brand-ink); font-weight:800; font-size:15px;
+    border-radius:12px; padding:14px; letter-spacing:.02em;
+  }
+  .ctabtn:active{opacity:.9}
+  .note{font-size:11.5px; color:var(--sub); margin:12px 2px 0; line-height:1.6}
+  .restart{display:block; width:100%; margin-top:14px; background:transparent; border:none; color:var(--sub); font:inherit; font-size:13px; text-decoration:underline; cursor:pointer}
+  footer{text-align:center; font-size:11px; color:var(--sub); margin-top:26px; line-height:1.6}
+</style>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">LINE登録特典・簡易版</p>
+    <h1>挫折原因3分セルフ診断</h1>
+    <p class="lead">5問に直感で答えると、あなたの「挫折タイプ」の傾向が見えます。所要3分・入力はこの端末の中だけで完結します。</p>
+  </header>
+
+  <!-- INTRO -->
+  <section id="intro" class="card">
+    <p class="howto"><b>使い方</b><br>5問それぞれでA/B/Cのうち一番近いものを1つ選びます。一番多かった記号が、あなたの挫折タイプの傾向です。深く考えず、直感でどうぞ。</p>
+    <div class="nav">
+      <button class="btn primary" id="startBtn">診断をはじめる</button>
+    </div>
+    <p class="note">この診断はタイプの傾向をつかむためのものです。結果は体質や効果を保証・断定するものではありません。合わないと感じたら気にせず読み飛ばしてください。</p>
+  </section>
+
+  <!-- QUESTION -->
+  <section id="quiz" class="card hidden">
+    <div class="progress">
+      <span id="pgLabel">Q1 / 5</span>
+      <span class="bar"><span id="pgFill"></span></span>
+    </div>
+    <p class="qnum" id="qnum">Q1</p>
+    <p class="qtext" id="qtext"></p>
+    <div class="opts" id="opts"></div>
+    <div class="nav">
+      <button class="btn ghost" id="backBtn">戻る</button>
+      <button class="btn primary" id="nextBtn" disabled>次へ</button>
+    </div>
+  </section>
+
+  <!-- TIE BREAK -->
+  <section id="tie" class="card tie hidden">
+    <p class="qnum">最後にひとつ</p>
+    <p class="qtext">同じくらいの記号が並びました。<br>今の自分に一番近いと感じるのは?</p>
+    <p class="hint">迷ったら「これが一番あるある」と思う方でOKです。</p>
+    <div class="opts" id="tieOpts"></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="hidden">
+    <div class="card">
+      <p class="rtype">あなたの傾向は</p>
+      <p class="rname" id="rName"></p>
+      <p class="rtally" id="rTally"></p>
+      <p class="rlabel">どんなタイプ?</p>
+      <p class="rdesc" id="rDesc"></p>
+      <p class="rlabel">今日からの「最初の一歩」</p>
+      <div class="step">
+        <p class="st" id="sTitle"></p>
+        <p id="sBody"></p>
+        <p class="ex" id="sEx"></p>
+      </div>
+    </div>
+
+    <div class="cta">
+      <h2>ここから先は「完全版」で</h2>
+      <p>この簡易版で分かるのは「タイプの傾向」まで。タイプ別のくわしい対策と、器具なしで始める最初の7日間メニュー・記録テンプレートまでを1本にまとめたのが完全版です。</p>
+      <p class="price">『宅トレ習慣化スターターキット』(note・980円)</p>
+      <ul>
+        <li>挫折原因セルフ診断・完全版(タイプ別対策つき)</li>
+        <li>意志力に頼らない習慣化7ルール</li>
+        <li>器具なし宅トレ 最初の7日間メニュー(1回20分)</li>
+        <li>継続記録テンプレート</li>
+      </ul>
+      <a class="ctabtn" id="ctaLink" href="https://note.com/tri_katsuki/n/n5482de758fdb" target="_blank" rel="noopener">完全版の中身を見る</a>
+      <p class="note">これは「必ず痩せる」ものでも、効果を保証するものでもありません。やるのは自分。ただ、何を・いつ・どれだけやるかで迷わなくなる分を先に用意しておく、という考えで作っています。合いそうなら、という前提でどうぞ。</p>
+    </div>
+
+    <button class="restart" id="restartBtn">もう一度診断する</button>
+  </section>
+
+  <footer>
+    入力内容はこの端末の中だけで扱い、外部へ送信することはありません。<br>
+    ※本診断は健康状態や運動効果を判定・保証するものではありません。
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var QUESTIONS = [
+    { q:"過去に筋トレが途切れたきっかけは?",
+      a:"やる気が出ない日が続いた",
+      b:"最初に詰め込みすぎて、筋肉痛や時間で破綻した",
+      c:"変化が見えなくて飽きた" },
+    { q:"「今日やろう」と思ってできない時、理由に近いのは?",
+      a:"なんとなく気分が乗らない",
+      b:"やることが多くて面倒に感じる",
+      c:"やっても意味を感じない" },
+    { q:"メニューを決めるとき、あなたは?",
+      a:"決めずに、その日の気分でやる",
+      b:"完璧なメニューを組みたくなる",
+      c:"効果が高いやり方を探し続ける" },
+    { q:"記録について近いのは?",
+      a:"つけていない",
+      b:"細かくつけすぎて疲れる",
+      c:"数字が動かないと落ち込む" },
+    { q:"続けるために一番欲しいのは?",
+      a:"やる気のスイッチ",
+      b:"迷わない手順",
+      c:"効果の手応え" }
+  ];
+
+  var TYPES = {
+    A:{ name:"意志力依存型",
+        desc:"やる気が出るのを待ってから動こうとするタイプ。気分が乗らない日にそのまま止まりやすい傾向があります。悪いのは意志ではなく、「やる気に頼る設計」になっていること。",
+        stitle:"すでにある習慣にくっつける",
+        sbody:"やる気ではなく“順番”で動く形にします。毎日必ずやっている行動の直後に、小さな1種目だけをくっつけて固定してみましょう。",
+        sex:"例:歯磨きのあとにスクワット10回だけ。増やさず、まずこの1つだけを固定する。" },
+    B:{ name:"計画過積載型",
+        desc:"完璧なメニューを組みたくなり、初日から詰め込んで反動で止まりやすいタイプ。準備は丁寧なのに、初日に破綻しがちな傾向があります。必要なのは、増やす勇気より減らす勇気。",
+        stitle:"先に「上限」を決める",
+        sbody:"メニューを増やす前に、天井を先に作ります。「初日は1種目・20分まで」と上限を決め、それ以上はやらないと決めておきましょう。",
+        sex:"例:初日は1種目・20分まで。物足りなくても、そこで必ず止める。" },
+    C:{ name:"効果実感待ち型",
+        desc:"結果が数字で見えないと飽きやすいタイプ。体重計が動く前に手応えを失って止まりやすい傾向があります。数字が動くより先に、別の“見える手応え”を用意するのがポイント。",
+        stitle:"体重ではなく「行動」を成果にする",
+        sbody:"変化を体重ではなく、やった回数で見えるようにします。数字が動く前に、行動が積み上がる手応えで繋いでいきましょう。",
+        sex:"例:やった日はカレンダーに○を1つ。○が並ぶこと自体を、今日の成果とみなす。" }
+  };
+  var ORDER = ["A","B","C"];
+
+  var STORE_KEY = "kintore_diag_v1";
+
+  var answers = [];   // "A"/"B"/"C" per question
+  var idx = 0;
+  var tieBreak = null;
+
+  var el = function(id){ return document.getElementById(id); };
+  var intro=el("intro"), quiz=el("quiz"), tie=el("tie"), result=el("result");
+
+  function save(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify({answers:answers, idx:idx})); }catch(e){}
+  }
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return null;
+      var d = JSON.parse(raw);
+      if(d && Array.isArray(d.answers)) return d;
+    }catch(e){}
+    return null;
+  }
+  function clearSave(){ try{ localStorage.removeItem(STORE_KEY); }catch(e){} }
+
+  function show(sec){
+    [intro,quiz,tie,result].forEach(function(s){ s.classList.add("hidden"); });
+    sec.classList.remove("hidden");
+    if(sec!==result){ window.scrollTo({top:0,behavior:"smooth"}); }
+  }
+
+  function renderQuestion(){
+    var Q = QUESTIONS[idx];
+    el("qnum").textContent = "Q" + (idx+1);
+    el("pgLabel").textContent = "Q" + (idx+1) + " / " + QUESTIONS.length;
+    el("pgFill").style.width = ((idx) / QUESTIONS.length * 100) + "%";
+    el("qtext").textContent = Q.q;
+
+    var opts = el("opts");
+    opts.innerHTML = "";
+    ORDER.forEach(function(key){
+      var b = document.createElement("button");
+      b.className = "opt" + (answers[idx]===key ? " sel" : "");
+      b.type = "button";
+      b.innerHTML = '<span class="mk">'+key+'</span><span>'+ escapeHtml(Q[key.toLowerCase()]) +'</span>';
+      b.addEventListener("click", function(){
+        answers[idx] = key;
+        save();
+        Array.prototype.forEach.call(opts.children, function(c){ c.classList.remove("sel"); });
+        b.classList.add("sel");
+        el("nextBtn").disabled = false;
+      });
+      opts.appendChild(b);
+    });
+
+    el("nextBtn").disabled = !answers[idx];
+    el("nextBtn").textContent = (idx===QUESTIONS.length-1) ? "結果を見る" : "次へ";
+    el("backBtn").textContent = (idx===0) ? "最初へ" : "戻る";
+    show(quiz);
+  }
+
+  function tally(){
+    var t = {A:0,B:0,C:0};
+    answers.forEach(function(k){ if(t[k]!==undefined) t[k]++; });
+    return t;
+  }
+
+  function winners(t){
+    var max = Math.max(t.A,t.B,t.C);
+    return ORDER.filter(function(k){ return t[k]===max; });
+  }
+
+  function finish(){
+    var t = tally();
+    var w = winners(t);
+    if(w.length>1 && tieBreak===null){
+      renderTie(w);
+      return;
+    }
+    var key = (w.length>1) ? tieBreak : w[0];
+    renderResult(key, t);
+  }
+
+  function renderTie(w){
+    var box = el("tieOpts");
+    box.innerHTML = "";
+    w.forEach(function(key){
+      var T = TYPES[key];
+      var b = document.createElement("button");
+      b.className = "opt"; b.type="button";
+      b.innerHTML = '<span class="mk">'+key+'</span><span><b>'+escapeHtml(T.name)+'</b></span>';
+      b.addEventListener("click", function(){
+        tieBreak = key;
+        renderResult(key, tally());
+      });
+      box.appendChild(b);
+    });
+    show(tie);
+  }
+
+  function renderResult(key, t){
+    var T = TYPES[key];
+    el("rName").textContent = T.name;
+    el("rTally").textContent = "選択の内訳:A " + t.A + " ・ B " + t.B + " ・ C " + t.C + "(記号=" + key + ")";
+    el("rDesc").textContent = T.desc;
+    el("sTitle").textContent = "▶ " + T.stitle;
+    el("sBody").textContent = T.sbody;
+    el("sEx").textContent = T.sex;
+    el("pgFill").style.width = "100%";
+    show(result);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g,function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  // events
+  el("startBtn").addEventListener("click", function(){ idx=0; renderQuestion(); });
+  el("nextBtn").addEventListener("click", function(){
+    if(!answers[idx]) return;
+    if(idx < QUESTIONS.length-1){ idx++; save(); renderQuestion(); }
+    else { save(); finish(); }
+  });
+  el("backBtn").addEventListener("click", function(){
+    if(idx===0){ show(intro); return; }
+    idx--; save(); renderQuestion();
+  });
+  el("restartBtn").addEventListener("click", function(){
+    answers=[]; idx=0; tieBreak=null; clearSave(); show(intro);
+  });
+
+  // resume prior session (answers only; always restart at intro so it feels fresh)
+  var prev = load();
+  if(prev && prev.answers.length){
+    answers = prev.answers.slice(0, QUESTIONS.length);
+  }
+})();
+</script>
