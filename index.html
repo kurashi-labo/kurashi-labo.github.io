@@ -3,25 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>くらしラボ | 暮らしの数字を計算するツールと比較表</title>
-<meta name="description" content="備蓄の量、引っ越し費用、手取り、光熱費など、暮らしの数字を自分の条件で計算するツールと、公開データで作った比較表を順に増やしていくサイトです。">
+<title>くらしラボ計算帳 | 人生の節目で出てくる数字を、出典つきの式で計算する</title>
+<meta name="description" content="防災の備蓄、実家の片付け、法要の日程、有給休暇、食費、引越しなど、暮らしの節目で出てくる数字を自分の条件で計算するツール集です。式の前提と出典を各ページに載せています。">
 <link rel="canonical" href="https://kurashi-labo.github.io/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="くらしラボ | 暮らしの数字を計算するツールと比較表">
-<meta property="og:description" content="備蓄の量、引っ越し費用、手取り、光熱費など、暮らしの数字を自分の条件で計算するツールと、公開データで作った比較表を順に増やしていくサイトです。">
+<meta property="og:title" content="くらしラボ計算帳 | 人生の節目で出てくる数字を、出典つきの式で計算する">
+<meta property="og:description" content="防災の備蓄、実家の片付け、法要の日程、有給休暇、食費、引越しなど、暮らしの節目で出てくる数字を自分の条件で計算するツール集です。式の前提と出典を各ページに載せています。">
 <meta property="og:url" content="https://kurashi-labo.github.io/">
-<meta property="og:site_name" content="くらしラボ">
+<meta property="og:site_name" content="くらしラボ計算帳">
 <meta property="og:locale" content="ja_JP">
-<link rel="stylesheet" href="./css/site.css">
+<link rel="stylesheet" href="css/site.css">
 <script type="application/ld+json">{
  "@context": "https://schema.org",
  "@graph": [
   {
-   "@type": "WebSite",
-   "@id": "https://kurashi-labo.github.io/#website",
+   "@type": "WebPage",
+   "@id": "https://kurashi-labo.github.io/#webpage",
    "url": "https://kurashi-labo.github.io/",
-   "name": "くらしラボ",
-   "description": "備蓄の量、引っ越し費用、手取り、光熱費など、暮らしの数字を自分の条件で計算するツールと、公開データで作った比較表を順に増やしていくサイトです。",
+   "name": "くらしラボ計算帳",
+   "description": "防災の備蓄、実家の片付け、法要の日程、有給休暇、食費、引越しなど、暮らしの節目で出てくる数字を自分の条件で計算するツール集です。式の前提と出典を各ページに載せています。",
    "inLanguage": "ja",
    "publisher": {
     "@type": "Organization",
@@ -31,22 +31,80 @@
   }
  ]
 }</script>
+<script>
+/* KL_UI: 全ページ共通。ui_js は計算結果を得たあと KL_UI.applyWhen(result) を呼ぶ */
+(function () {
+  "use strict";
+  var DAY_MS = 24 * 60 * 60 * 1000;
+  function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
+  function field(obj, path) {
+    var cur = obj;
+    String(path).split(".").forEach(function (k) { cur = (cur === null || cur === undefined) ? undefined : cur[k]; });
+    return cur;
+  }
+  function parse(v) { try { return JSON.parse(v); } catch (e) { return v; } }
+  function match(actual, op, expected) {
+    if (actual === undefined || actual === null || actual === "") { return false; }
+    if (op === ">=" || op === "<=") {
+      var a = Number(actual), b = Number(expected);
+      if (!isFinite(a) || !isFinite(b)) { return false; }
+      return op === ">=" ? a >= b : a <= b;
+    }
+    if (op === "==") { return String(actual) === String(expected); }
+    if (op === "in") {
+      return Array.isArray(expected) && expected.some(function (v) { return String(v) === String(actual); });
+    }
+    return false;
+  }
+  function refreshBlocks() {
+    each("[data-kl-cta-block]", function (block) {
+      block.hidden = !block.querySelector(".kl-cta:not([hidden])");
+    });
+  }
+  function applyWhen(result) {
+    each(".kl-cta[data-when-field]", function (el) {
+      el.hidden = !(result && match(field(result, el.getAttribute("data-when-field")),
+        el.getAttribute("data-when-op"), parse(el.getAttribute("data-when-value"))));
+    });
+    refreshBlocks();
+  }
+  function hideStalePrices() {
+    /* 楽天の価格は取得から24時間を超えたら出さない(ビルドが止まった日の保険) */
+    each("[data-kl-fetched]", function (el) {
+      var t = Date.parse(el.getAttribute("data-kl-fetched"));
+      if (!isFinite(t) || Date.now() - t > DAY_MS) { el.textContent = "更新待ち"; el.classList.add("kl-stale"); }
+    });
+  }
+  window.KL_UI = { applyWhen: applyWhen, match: match, refresh: refreshBlocks };
+  document.addEventListener("DOMContentLoaded", function () { hideStalePrices(); refreshBlocks(); });
+})();
+</script>
 </head>
 <body>
-<header class="site-header"><div class="wrap"><a class="site-name" href="./">くらしラボ</a><span class="site-tagline">暮らしの数字を計算するツールと比較表</span></div></header>
+<header class="site-header"><div class="wrap"><a class="site-name" href="./">くらしラボ計算帳</a><span class="site-tagline">人生の節目で出てくる数字を、出典つきの式で計算する</span></div></header>
 <main class="wrap">
 <section class="hero">
-<h1>くらしラボ</h1>
-<p>備蓄の量、引っ越し費用、手取り、光熱費など、暮らしの数字を自分の条件で計算するツールと、公開データで作った比較表を順に増やしていくサイトです。</p>
+<h1>くらしラボ計算帳</h1>
+<p>防災の備蓄、実家の片付け、法要の日程、有給休暇、食費、引越しなど、暮らしの節目で出てくる数字を自分の条件で計算するツール集です。式の前提と出典を各ページに載せています。</p>
+<p><a class="kl-button" href="keisan/">計算ツールの一覧を開く</a></p>
 </section>
-<p class="empty">最初のページを準備しています。</p>
-
+<section class="cat-block">
+<h2>カテゴリ</h2>
+<ul class="page-list">
+<li><a href="keisan/bosai/">防災と停電</a><p>家族の人数と日数から備蓄の量を出し、停電のときにポータブル電源で使える時間の目安を計算します。</p></li>
+<li><a href="keisan/jikka/">実家の片付け</a><p>遺品整理や不用品の処分にかかる費用の目安と、自分でやる場合との比べ方を計算します。</p></li>
+<li><a href="keisan/kankon/">冠婚葬祭</a><p>法要の日付と、香典やお布施の目安を、故人との関係や年代から調べます。</p></li>
+<li><a href="keisan/shigoto/">資格と働き方</a><p>資格の勉強時間を試験日から逆算し、有給休暇の日数や退職日までの段取りを計算します。</p></li>
+<li><a href="keisan/shoku/">食費と運動</a><p>たんぱく質1gあたりの値段、宅食の1食あたりの値段、ジムと宅トレの年間費用を比べます。</p></li>
+<li><a href="keisan/sumai/">住まい</a><p>引越しのやることを日付つきで並べ、退去費用の負担割合や荷物を預ける費用を計算します。</p></li>
+</ul>
+</section>
 
 </main>
 <footer class="site-footer"><div class="wrap">
-<p class="operator">くらしラボが運営しています。問い合わせ窓口は<a href="./privacy.html">プライバシーポリシー</a>に載せています。</p>
-<p>ページの下書きと更新作業には生成AIを使っています。数字には出典のリンクを付けています。</p>
-<p><a href="./">トップ</a> / <a href="./privacy.html">プライバシーポリシーと問い合わせ窓口</a></p>
+<p class="operator">運営者はくらしラボ(個人運営)です。</p>
+<p>ページの文章は生成AIで下書きし、計算式は自動の検算テストを通してから公開しています。数値は出典から書き写し、出典ごとに確認日を付けています。</p>
+<p><a href="./">トップ</a> / <a href="keisan/about/">運営者と作り方</a> / <a href="privacy.html">プライバシーポリシーと問い合わせ窓口</a></p>
 </div></footer>
 </body>
 </html>

@@ -86,6 +86,32 @@ th{background:var(--chip);white-space:nowrap}
 .site-footer p{margin:0 0 8px}
 .site-footer a{color:var(--sub)}
 
+/* v2: 答えの目安、次の一歩、計算の前提、楽天の表、運営者 */
+[hidden]{display:none !important}
+.answer-box{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--brand);
+  border-radius:12px;padding:12px 14px;margin:0 0 16px}
+.answer-box .answer-label{display:block;font-size:12px;font-weight:700;color:var(--brand);margin-bottom:4px}
+.answer-box p:last-child{margin-bottom:0}
+.tool #kl-result{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--chip)}
+.tool #kl-result:empty{display:none}
+.tool #kl-result strong{font-size:20px}
+.next-step .kl-cta{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 10px}
+.next-step .cta-order{font-size:13px;color:var(--sub)}
+.kl-cta a.cta-link{display:inline-block;font-weight:700}
+.kl-cta .cta-note{display:block;font-size:13px;color:var(--sub);margin-top:4px}
+.kl-cta .cta-pr,.est-tag{display:inline-block;font-size:11px;color:var(--sub);border:1px solid var(--line);
+  border-radius:6px;padding:0 6px;margin-left:6px;vertical-align:middle}
+.kl-cta ul.rakuten-items{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px}
+.kl-price small,.kl-fetched{display:block;font-size:11px;color:var(--sub)}
+.kl-stale{color:var(--sub)}
+.assumptions td.num{white-space:nowrap}
+.table-order{font-size:13px;color:var(--sub);margin:8px 0 0}
+.rakuten-credit{font-size:12px}
+.operator-box{font-size:14px}
+.kl-button{display:inline-block;font-weight:700;padding:10px 16px;border-radius:10px;
+  background:var(--brand);color:var(--brand-ink);text-decoration:none}
+.about-link{margin-top:28px;font-size:14px}
+
 @media (min-width:720px){
   h1{font-size:28px}
   .tool{padding:20px 24px}
