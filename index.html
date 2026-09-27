@@ -79,6 +79,371 @@
   document.addEventListener("DOMContentLoaded", function () { hideStalePrices(); refreshBlocks(); });
 })();
 </script>
+<script>
+/* kl_date.js: くらしラボ計算帳の日付部品。グローバル KL_DATE(ブラウザは window、calc_test.js の vm は context)。
+   日付は Date か "YYYY-MM-DD" で受け取り、その端末の0時の Date で返す(文字列にするときは fmt)。
+   内部は 1970-01-01 からの通し日数で数えるので、タイムゾーンと夏時間の影響を受けない。
+   条文: 民法140条〜143条、国税通則法10条2項と同法施行令2条2項、祝日法(国民の祝日に関する法律)2条・3条。 */
+(function (root) {
+  "use strict";
+  var DAY_MS = 86400000;
+  var WEEKDAY_JA = ["日", "月", "火", "水", "木", "金", "土"];
+  var HOLIDAY_REF = /holiday|shukujitsu|syukujitsu/i;
+  var UNITS = ["days", "weeks", "months", "years"];
+  var hasOwn = Object.prototype.hasOwnProperty;
+
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function serialOf(y, m, d) { return Math.round(Date.UTC(y, m - 1, d) / DAY_MS); }
+  function partsOf(s) {
+    var t = new Date(s * DAY_MS);
+    return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() };
+  }
+  function iso(y, m, d) { return y + "-" + pad(m) + "-" + pad(d); }
+  function isoOf(s) { var p = partsOf(s); return iso(p.y, p.m, p.d); }
+  function compact(s) { return isoOf(s).replace(/-/g, ""); }
+  function dow(s) { return ((s + 4) % 7 + 7) % 7; } // 1970-01-01 は木曜
+  function daysInMonth(y, m) { return new Date(Date.UTC(y, m, 0)).getUTCDate(); }
+  function isDate(v) { return Object.prototype.toString.call(v) === "[object Date]"; }
+
+  // Date(0時ちょうどなら端末の日付、UTC の0時ちょうどなら UTC の日付)、"YYYY-MM-DD"、"YYYY/M/D"、"YYYY年M月D日"、
+  // taxDeadline などの結果({date})を通し日数にする。読めなければ NaN
+  function toSerial(v) {
+    if (v === null || v === undefined || v === "") { return NaN; }
+    if (isDate(v)) {
+      if (isNaN(v.getTime())) { return NaN; }
+      if (v.getHours() === 0 && v.getMinutes() === 0 && v.getSeconds() === 0 && v.getMilliseconds() === 0) {
+        return serialOf(v.getFullYear(), v.getMonth() + 1, v.getDate());
+      }
+      if (v.getUTCHours() === 0 && v.getUTCMinutes() === 0 && v.getUTCSeconds() === 0 && v.getUTCMilliseconds() === 0) {
+        return serialOf(v.getUTCFullYear(), v.getUTCMonth() + 1, v.getUTCDate());
+      }
+      return serialOf(v.getFullYear(), v.getMonth() + 1, v.getDate());
+    }
+    if (typeof v === "object") { return v.date !== undefined && v.date !== v ? toSerial(v.date) : NaN; }
+    var m = /^\s*(\d{4})\s*[-\/.年]\s*(\d{1,2})\s*[-\/.月]\s*(\d{1,2})\s*日?\s*(?:$|T)/.exec(String(v));
+    if (!m) { return NaN; }
+    var y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+    if (y < 1000 || mo < 1 || mo > 12 || d < 1 || d > daysInMonth(y, mo)) { return NaN; }
+    return serialOf(y, mo, d);
+  }
+  function need(v, fn) {
+    var s = toSerial(v);
+    if (isNaN(s)) { throw new Error("KL_DATE." + fn + ": 日付を読めません(" + String(v) + ")"); }
+    return s;
+  }
+  function int(n, fn, what) {
+    var x = Number(n);
+    if (n === null || n === "" || !isFinite(x) || Math.floor(x) !== x) {
+      throw new Error("KL_DATE." + fn + ": " + what + "は整数で指定してください(" + String(n) + ")");
+    }
+    return x;
+  }
+  function toDate(s) {
+    var p = partsOf(s);
+    var t = new Date(2000, 0, 1);
+    t.setFullYear(p.y, p.m - 1, p.d);
+    t.setHours(0, 0, 0, 0);
+    return t;
+  }
+  function shiftMonths(s, n) {
+    var p = partsOf(s);
+    var idx = p.y * 12 + (p.m - 1) + n;
+    var y = Math.floor(idx / 12), m = idx - y * 12 + 1;
+    return { y: y, m: m, d: p.d, last: daysInMonth(y, m) };
+  }
+
+  function parse(v) { var s = toSerial(v); return isNaN(s) ? null : toDate(s); }
+  function fmt(v) { var s = toSerial(v); return isNaN(s) ? "" : isoOf(s); }
+  function weekdayJa(v) { return WEEKDAY_JA[dow(need(v, "weekdayJa"))]; }
+  function addDays(date, n) { return toDate(need(date, "addDays") + int(n, "addDays", "日数")); }
+  // 月の足し引き。応当日が無い月は月末にする(民法143条2項ただし書と同じ考え方。1月31日の1か月後は2月末日)
+  function addMonths(date, n) {
+    var t = shiftMonths(need(date, "addMonths"), int(n, "addMonths", "月数"));
+    return toDate(serialOf(t.y, t.m, Math.min(t.d, t.last)));
+  }
+  function addYears(date, n) { return addMonths(date, 12 * int(n, "addYears", "年数")); }
+  function endOfMonth(date) {
+    var p = partsOf(need(date, "endOfMonth"));
+    return toDate(serialOf(p.y, p.m, daysInMonth(p.y, p.m)));
+  }
+  function diffDays(from, to) { return need(to, "diffDays") - need(from, "diffDays"); }
+
+  // 期間の末日。spec は {days:n} {weeks:n} {months:n} {years:n} のどれか1つ
+  function periodEnd(start, spec, opts) {
+    var s = need(start, "periodEnd"), found = [];
+    for (var i = 0; i < UNITS.length; i++) {
+      if (spec && spec[UNITS[i]] !== undefined && spec[UNITS[i]] !== null) { found.push(UNITS[i]); }
+    }
+    if (found.length !== 1) {
+      throw new Error("KL_DATE.periodEnd: 期間は days、weeks、months、years のどれか1つで指定してください");
+    }
+    var unit = found[0], n = int(spec[unit], "periodEnd", unit);
+    if (n < 1) { throw new Error("KL_DATE.periodEnd: " + unit + "は1以上にしてください"); }
+    // 民法140条: 初日は算入しない(起算日は翌日)。午前0時から始まる期間だけ initialDayCounted:true で初日を数える
+    var first = s + (opts && opts.initialDayCounted === true ? 0 : 1);
+    // 民法141条: 期間は末日の終了をもって満了する。返すのはその末日
+    if (unit === "days") { return toDate(first + n - 1); }
+    // 民法143条: 週・月・年は暦に従い、最後の週・月・年で起算日に応当する日の前日に満了する(2項本文)
+    if (unit === "weeks") { return toDate(first + 7 * n - 1); }
+    var t = shiftMonths(first, unit === "years" ? 12 * n : n);
+    // 143条2項ただし書: 最後の月に応当する日が無いときは、その月の末日に満了する
+    if (t.d > t.last) { return toDate(serialOf(t.y, t.m, t.last)); }
+    return toDate(serialOf(t.y, t.m, t.d) - 1);
+  }
+
+  // ---- 祝日(祝日法)
+  // 春分・秋分の日は前年2月の官報で決まる。ここでは広く使われている近似式で出す(1980〜2150年)
+  function equinoxDay(year, spring) {
+    var base;
+    if (year >= 1980 && year <= 2099) { base = spring ? 20.8431 : 23.2488; }
+    else if (year >= 2100 && year <= 2150) { base = spring ? 21.8510 : 24.2488; }
+    else { return 0; }
+    return Math.floor(base + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
+  }
+  function nthMonday(y, m, n) { return 1 + ((8 - dow(serialOf(y, m, 1))) % 7) + 7 * (n - 1); }
+
+  var ruleCache = {};
+  function ruleHolidays(year) {
+    if (ruleCache[year]) { return ruleCache[year]; }
+    var sai = {}, map = {}, k, s, t;
+    function put(m, d, name) { if (d) { sai[iso(year, m, d)] = name; } }
+    // 祝日法2条
+    put(1, 1, "元日");
+    put(1, nthMonday(year, 1, 2), "成人の日");
+    put(2, 11, "建国記念の日");
+    if (year >= 2020) { put(2, 23, "天皇誕生日"); }
+    put(3, equinoxDay(year, true), "春分の日");
+    put(4, 29, "昭和の日");
+    put(5, 3, "憲法記念日");
+    put(5, 4, "みどりの日");
+    put(5, 5, "こどもの日");
+    if (year === 2020) { put(7, 23, "海の日"); put(7, 24, "スポーツの日"); put(8, 10, "山の日"); }
+    else if (year === 2021) { put(7, 22, "海の日"); put(7, 23, "スポーツの日"); put(8, 8, "山の日"); }
+    else { put(7, nthMonday(year, 7, 3), "海の日"); put(8, 11, "山の日"); put(10, nthMonday(year, 10, 2), "スポーツの日"); }
+    put(9, nthMonday(year, 9, 3), "敬老の日");
+    put(9, equinoxDay(year, false), "秋分の日");
+    put(11, 3, "文化の日");
+    put(11, 23, "勤労感謝の日");
+    for (k in sai) { if (hasOwn.call(sai, k)) { map[k] = sai[k]; } }
+    for (k in sai) {
+      if (!hasOwn.call(sai, k)) { continue; }
+      s = toSerial(k);
+      // 3条2項(振替休日): 祝日が日曜日に当たるときは、その日後で最も近い祝日でない日を休日とする
+      if (dow(s) === 0) {
+        t = s + 1;
+        while (hasOwn.call(sai, isoOf(t))) { t += 1; }
+        map[isoOf(t)] = "振替休日";
+      }
+      // 3条3項(国民の休日): 前日と翌日が祝日である日(祝日でない日に限る)は休日とする
+      if (hasOwn.call(sai, isoOf(s + 2)) && !hasOwn.call(sai, isoOf(s + 1)) && !hasOwn.call(map, isoOf(s + 1))) {
+        map[isoOf(s + 1)] = "国民の休日";
+      }
+    }
+    var note = year < 2020 ? "2019年以前は祝日の決まりが今と違うため、参考の値です"
+      : (equinoxDay(year, true) ? "内閣府の祝日データに無い年のため、祝日法の決まりと春分・秋分の近似式で出しました"
+        : "春分と秋分の日を近似式で出せない年です(1980〜2150年のみ)");
+    ruleCache[year] = { map: map, note: note };
+    return ruleCache[year];
+  }
+
+  // refdata のうち、名前か出典URLに holiday / shukujitsu を含むものを祝日データとして読む。
+  // 形は {"rows": [{"date": "YYYY-MM-DD", "name": "…"}]}(taishoku-gyakusan__holidays_jp と shikaku-gyakusan__shukujitsu)
+  var refCache = { src: undefined, idx: null };
+  function holidayRows(source) {
+    if (Array.isArray(source)) { return source; }
+    var out = [];
+    if (source && typeof source === "object") {
+      for (var k in source) {
+        if (!hasOwn.call(source, k) || !Array.isArray(source[k])) { continue; }
+        var first = source[k][0];
+        if (HOLIDAY_REF.test(k) || (first && typeof first === "object" && HOLIDAY_REF.test(String(first.source_url || "")))) {
+          out = out.concat(source[k]);
+        }
+      }
+    }
+    return out;
+  }
+  function refIndex(source) {
+    if (source === undefined || source === null) { source = root.KL_REFDATA; }
+    if (refCache.idx && refCache.src === source) { return refCache.idx; }
+    var rows = holidayRows(source), map = {}, years = {}, i, k;
+    for (i = 0; i < rows.length; i++) {
+      var r = rows[i], s = toSerial(typeof r === "string" ? r : (r && r.date));
+      if (isNaN(s)) { continue; }
+      k = isoOf(s);
+      map[k] = (r && typeof r === "object" && r.name) || map[k] || "祝日";
+    }
+    // 元日と勤労感謝の日の両方がある年を「その年の祝日がすべて載っている」とみなす
+    for (k in map) {
+      if (hasOwn.call(map, k) && map[k.slice(0, 4) + "-01-01"] && map[k.slice(0, 4) + "-11-23"]) { years[k.slice(0, 4)] = true; }
+    }
+    refCache = { src: source, idx: { map: map, years: years } };
+    return refCache.idx;
+  }
+
+  function holidaysFor(year, source) {
+    var y = int(year, "holidaysFor", "年"), idx = refIndex(source), prefix = String(y) + "-";
+    var fromRef = hasOwn.call(idx.years, String(y)), rule = fromRef ? null : ruleHolidays(y);
+    var src = fromRef ? idx.map : rule.map, map = {}, list = [], keys = [], k, i;
+    for (k in src) { if (hasOwn.call(src, k) && k.indexOf(prefix) === 0) { keys.push(k); } }
+    keys.sort();
+    for (i = 0; i < keys.length; i++) { map[keys[i]] = src[keys[i]]; list.push({ date: keys[i], name: src[keys[i]] }); }
+    var out = { year: y, estimated: !fromRef, source: fromRef ? "refdata" : "rule", holidays: list, map: map };
+    if (rule) { out.note = rule.note; }
+    return out;
+  }
+
+  // holidays の渡し方: 省略(KL_REFDATA の祝日、無い年は祝日法で計算)/ refdata オブジェクト / 日付か {date,name} の配列 /
+  // {"YYYY-MM-DD": 名前} / holidaysFor の結果。配列と {"日付": 名前} は「それが祝日のすべて」として扱う
+  function lookup(holidays) {
+    var fixed = null, source, perYear = {}, estimated = false;
+    if (Array.isArray(holidays)) {
+      fixed = {};
+      for (var i = 0; i < holidays.length; i++) {
+        var r = holidays[i], s = toSerial(typeof r === "string" ? r : (r && r.date));
+        if (!isNaN(s)) { fixed[isoOf(s)] = (r && typeof r === "object" && r.name) || "休日"; }
+      }
+    } else if (holidays && typeof holidays === "object") {
+      if (holidays.map && typeof holidays.map === "object" && holidays.year !== undefined) { fixed = holidays.map; }
+      else {
+        for (var key in holidays) {
+          if (hasOwn.call(holidays, key)) { fixed = /^\d{4}-\d{2}-\d{2}$/.test(key) ? holidays : null; break; }
+        }
+        if (!fixed) { source = holidays; }
+      }
+    }
+    return {
+      name: function (s) {
+        var k = isoOf(s);
+        if (fixed) { return hasOwn.call(fixed, k) ? String(fixed[k] === true ? "休日" : fixed[k]) : ""; }
+        var y = k.slice(0, 4);
+        if (!perYear[y]) {
+          perYear[y] = holidaysFor(Number(y), source);
+          if (perYear[y].estimated) { estimated = true; }
+        }
+        return hasOwn.call(perYear[y].map, k) ? perYear[y].map[k] : "";
+      },
+      estimated: function () { return estimated; }
+    };
+  }
+  function yearEnd(s) { var p = partsOf(s); return (p.m === 12 && p.d >= 29) || (p.m === 1 && p.d <= 3); }
+  function closedReason(s, look, withYearEnd) {
+    var name = look.name(s), w = dow(s);
+    if (name) { return name; }
+    if (w === 0) { return "日曜日"; }
+    if (w === 6) { return "土曜日"; }
+    if (withYearEnd && yearEnd(s)) { return "年末年始"; }
+    return "";
+  }
+
+  function holidayName(date, holidays) { return lookup(holidays).name(need(date, "holidayName")); }
+  // 土日と祝日(振替休日・国民の休日を含む)なら true
+  function isHoliday(date, holidays) { return !!closedReason(need(date, "isHoliday"), lookup(holidays), false); }
+  function businessDay(date, opts, fn, step) {
+    opts = opts || {};
+    var s = need(date, fn), look = lookup(opts.holidays);
+    if (opts.strict === true) { s += step; }
+    for (var i = 0; i < 400; i++, s += step) {
+      if (!closedReason(s, look, opts.yearEnd === true)) { return toDate(s); }
+    }
+    throw new Error("KL_DATE." + fn + ": 400日以内に営業日がありません");
+  }
+  // その日が営業日ならその日、休みなら次(前)の営業日。{strict:true} で必ず翌日以降(前日以前)にする。
+  // {yearEnd:true} で12月29日〜1月3日も休みとして数える
+  function nextBusinessDay(date, opts) { return businessDay(date, opts, "nextBusinessDay", 1); }
+  function prevBusinessDay(date, opts) { return businessDay(date, opts, "prevBusinessDay", -1); }
+
+  function shiftDeadline(date, opts, fn, basis) {
+    opts = opts || {};
+    var s0 = need(date, fn), s = s0, look = lookup(opts.holidays), skipped = [], why;
+    for (var i = 0; i < 400; i++) {
+      why = closedReason(s, look, true);
+      if (!why) { break; }
+      skipped.push({ date: isoOf(s), why: why });
+      s += 1;
+    }
+    return { date: toDate(s), ymd: isoOf(s), original: isoOf(s0), shifted: s !== s0, skipped: skipped,
+      estimated: look.estimated(), unconfirmed: false, basis: basis };
+  }
+  // 国税通則法10条2項: 期限が日曜日・祝日法の休日・その他一般の休日・政令で定める日に当たるときは、翌日を期限とみなす。
+  // 政令で定める日は土曜日と12月29日〜31日(施行令2条2項)。1月2日と3日は一般の休日として数える
+  function taxDeadline(date, opts) { return shiftDeadline(date, opts, "taxDeadline", "国税通則法10条2項"); }
+  // 民法142条: 期間の末日が日曜日・祝日法の休日その他の休日に当たるときは、その日に取引をしない慣習がある場合に限り翌日に満了する。
+  // 慣習の有無はここでは確かめられないので、繰り下げたときは unconfirmed:true を返す(土曜日と12月29日〜1月3日も休みとして数える)。
+  // 裁判所への申述など民事訴訟法95条3項(家事事件は家事事件手続法34条4項で準用)が使える手続は {basis:"minso"}。慣習の条件が無い
+  function courtDeadline(date, opts) {
+    var minso = !!(opts && opts.basis === "minso");
+    var r = shiftDeadline(date, opts, "courtDeadline", minso ? "民事訴訟法95条3項" : "民法142条");
+    r.unconfirmed = !minso && r.shifted;
+    return r;
+  }
+
+  // ---- カレンダー(RFC 5545)
+  function icsText(v) {
+    return String(v === undefined || v === null ? "" : v).replace(/\\/g, "\\\\").replace(/;/g, "\\;")
+      .replace(/,/g, "\\,").replace(/\r\n|\r|\n/g, "\\n");
+  }
+  // 1行75オクテット(UTF-8)を超えたら CRLF+空白で折り返す。文字の途中では切らない
+  function fold(line) {
+    var out = [], cur = "", bytes = 0, i = 0;
+    while (i < line.length) {
+      var c = line.charCodeAt(i), ch = line.charAt(i), n;
+      if (c >= 0xd800 && c <= 0xdbff && i + 1 < line.length) { ch = line.substr(i, 2); n = 4; }
+      else { n = c < 0x80 ? 1 : (c < 0x800 ? 2 : 3); }
+      if (bytes + n > 75) { out.push(cur); cur = " "; bytes = 1; }
+      cur += ch;
+      bytes += n;
+      i += ch.length;
+    }
+    out.push(cur);
+    return out.join("\r\n");
+  }
+  function hash(str) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul ? Math.imul(h, 0x01000193) : (h * 0x01000193) | 0; }
+    return ("0000000" + (h >>> 0).toString(16)).slice(-8);
+  }
+  function stamp(now) {
+    var t = isDate(now) ? now.getTime() : (typeof now === "string" ? Date.parse(now) : (typeof now === "number" ? now : Date.now()));
+    if (!isFinite(t)) { throw new Error("KL_DATE.toICS: now を読めません(" + String(now) + ")"); }
+    var d = new Date(t);
+    return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + "T" +
+      pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + "Z";
+  }
+  // events: [{title, date, description}]。終日の予定(DTSTART;VALUE=DATE、DTEND は翌日)。opts.now で DTSTAMP を固定できる
+  function toICS(events, calName, opts) {
+    opts = opts || {};
+    var dtstamp = stamp(opts.now), name = calName ? String(calName) : "くらしラボ計算帳";
+    var lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//kurashi-labo//keisan//JA", "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH", "X-WR-CALNAME:" + icsText(name)];
+    var list = Array.isArray(events) ? events : [];
+    for (var i = 0; i < list.length; i++) {
+      var ev = list[i] || {}, s = need(ev.date, "toICS"), title = String(ev.title || "予定"), day = compact(s);
+      lines.push("BEGIN:VEVENT",
+        "UID:" + day + "-" + (i + 1) + "-" + hash(name + "\n" + title + "\n" + day + "\n" + i) + "@kurashi-labo.github.io",
+        "DTSTAMP:" + dtstamp, "DTSTART;VALUE=DATE:" + day, "DTEND;VALUE=DATE:" + compact(s + 1),
+        "SUMMARY:" + icsText(title));
+      if (ev.description) { lines.push("DESCRIPTION:" + icsText(ev.description)); }
+      lines.push("TRANSP:TRANSPARENT", "END:VEVENT");
+    }
+    lines.push("END:VCALENDAR");
+    var out = [];
+    for (var j = 0; j < lines.length; j++) { out.push(fold(lines[j])); }
+    return out.join("\r\n") + "\r\n";
+  }
+  function icsDataUrl(ics) { return "data:text/calendar;charset=utf-8," + encodeURIComponent(ics); }
+
+  var api = {
+    version: "1", parse: parse, fmt: fmt, weekdayJa: weekdayJa, addDays: addDays, addMonths: addMonths,
+    addYears: addYears, endOfMonth: endOfMonth, diffDays: diffDays, periodEnd: periodEnd,
+    holidaysFor: holidaysFor, holidayName: holidayName, isHoliday: isHoliday,
+    nextBusinessDay: nextBusinessDay, prevBusinessDay: prevBusinessDay,
+    taxDeadline: taxDeadline, courtDeadline: courtDeadline, toICS: toICS, icsDataUrl: icsDataUrl
+  };
+  root.KL_DATE = api;
+  if (typeof module === "object" && module && module.exports) { module.exports = api; }
+})(typeof globalThis !== "undefined" ? globalThis : this);
+</script>
 </head>
 <body>
 <header class="site-header"><div class="wrap"><a class="site-name" href="./">くらしラボ計算帳</a><span class="site-tagline">人生の節目で出てくる数字を、出典つきの式で計算する</span></div></header>
@@ -97,6 +462,9 @@
 <li><a href="keisan/shigoto/">資格と働き方</a><p>資格の勉強時間を試験日から逆算し、有給休暇の日数や退職日までの段取りを計算します。</p></li>
 <li><a href="keisan/shoku/">食費と運動</a><p>たんぱく質1gあたりの値段、宅食の1食あたりの値段、ジムと宅トレの年間費用を比べます。</p></li>
 <li><a href="keisan/sumai/">住まい</a><p>引越しのやることを日付つきで並べ、退去費用の負担割合や荷物を預ける費用を計算します。</p></li>
+<li><a href="keisan/tetsuzuki/">手続き暦(介護と相続の期限)</a><p>親の介護休業や、亡くなったあとの手続き、相続登記、空き家特例の期限を、起点の日付から日付つきの一覧にする</p></li>
+<li><a href="keisan/care/">ケア職の計算帳</a><p>介護福祉士やケアマネの受験時期、看護師のボーナス後の退職日、保育士の年度末退職の伝え方を、日付と日数から出す</p></li>
+<li><a href="keisan/shinro/">進路とお金の計算帳(通信制と不登校)</a><p>通信制高校への転入と卒業時期、サポート校を足した3年間の費用、学校に行けない間の学び方の月額を出す</p></li>
 </ul>
 </section>
 
