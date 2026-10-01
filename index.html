@@ -444,18 +444,148 @@
   if (typeof module === "object" && module && module.exports) { module.exports = api; }
 })(typeof globalThis !== "undefined" ? globalThis : this);
 </script>
+<script type="application/json" id="kl-category-counts">{"bosai": 3, "jikka": 3, "kankon": 0, "shigoto": 3, "shoku": 1, "sumai": 0, "tetsuzuki": 7, "care": 7, "shinro": 5, "koikatsu": 1, "deai": 0}</script>
+<script>
+/* Presentation only: preserve calculator inputs, outputs, links and live regions. */
+(function () {
+  "use strict";
+
+  function each(root, selector, fn) {
+    Array.prototype.forEach.call(root.querySelectorAll(selector), fn);
+  }
+
+  function markNumbers(root) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var nodes = [], node;
+    while ((node = walker.nextNode())) {
+      if (!node.parentElement.closest("a, button, script, style, time, .kl-number") && /[0-9０-９]/.test(node.data)) {
+        nodes.push(node);
+      }
+    }
+    nodes.forEach(function (text) {
+      var pattern = /[0-9０-９]+(?:[,，.．][0-9０-９]+)*/g;
+      var fragment = document.createDocumentFragment(), start = 0, match;
+      while ((match = pattern.exec(text.data))) {
+        fragment.appendChild(document.createTextNode(text.data.slice(start, match.index)));
+        var span = document.createElement("span");
+        span.className = "kl-number";
+        span.textContent = match[0];
+        fragment.appendChild(span);
+        start = pattern.lastIndex;
+      }
+      fragment.appendChild(document.createTextNode(text.data.slice(start)));
+      text.replaceWith(fragment);
+    });
+  }
+
+  function tables(root) {
+    each(root, "table", function (table) {
+      var wrap = table.parentElement;
+      if (!wrap.classList.contains("table-wrap")) {
+        wrap = document.createElement("div");
+        wrap.className = "table-wrap";
+        table.before(wrap);
+        wrap.appendChild(table);
+      }
+      wrap.tabIndex = 0;
+      wrap.setAttribute("role", "region");
+      wrap.setAttribute("aria-label", (table.caption ? table.caption.textContent : "計算の表") + "（横にスクロールできます）");
+      each(table, "td", function (cell) {
+        var value = cell.textContent.trim();
+        if (/^[約およそ税込\s]*[¥￥+−-]?[0-9０-９]/.test(value) && !cell.querySelector("a, button, input")) {
+          cell.classList.add("num");
+        }
+      });
+    });
+  }
+
+  function countBadge(parent, count) {
+    var badge = document.createElement("span");
+    badge.className = "page-count";
+    badge.textContent = count + "件の計算";
+    parent.appendChild(badge);
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    each(document, ".answer-box", markNumbers);
+    tables(document);
+
+    // Native disclosure controls; without JavaScript the original FAQ stays readable.
+    each(document, ".faq > dl", function (list) {
+      var fragment = document.createDocumentFragment();
+      Array.prototype.forEach.call(list.children, function (question) {
+        if (question.tagName !== "DT") { return; }
+        var answer = question.nextElementSibling;
+        if (!answer || answer.tagName !== "DD") { return; }
+        var details = document.createElement("details");
+        var summary = document.createElement("summary");
+        var body = document.createElement("div");
+        body.className = "faq-answer";
+        while (question.firstChild) { summary.appendChild(question.firstChild); }
+        while (answer.firstChild) { body.appendChild(answer.firstChild); }
+        details.appendChild(summary);
+        details.appendChild(body);
+        fragment.appendChild(details);
+      });
+      list.replaceWith(fragment);
+    });
+
+    each(document, ".category-grid > .cat-block", function (card) {
+      var list = card.querySelector(".page-list");
+      if (!list) { return; }
+      var count = list.querySelectorAll("li:not(.empty)").length;
+      countBadge(card, count);
+      if (!count) { return; }
+      var details = document.createElement("details");
+      var summary = document.createElement("summary");
+      summary.textContent = "計算ツールを見る";
+      details.className = "category-tools";
+      details.appendChild(summary);
+      card.appendChild(details);
+      details.appendChild(list);
+    });
+
+    each(document, ".category", function (category) {
+      countBadge(category.querySelector(".collection-heading"), category.querySelectorAll(".page-list > li:not(.empty)").length);
+    });
+    var countsElement = document.getElementById("kl-category-counts");
+    var counts = countsElement ? JSON.parse(countsElement.textContent) : {};
+    each(document, ".category-entry-list > li", function (card) {
+      var link = card.querySelector("a");
+      var parts = link ? link.getAttribute("href").split("/").filter(Boolean) : [];
+      var key = parts[parts.length - 1];
+      if (Object.prototype.hasOwnProperty.call(counts, key)) { countBadge(card, counts[key]); }
+    });
+
+    // Observe only the existing result node; never replace it or change aria-live.
+    each(document, ".tool #kl-result, .tool #result, .tool .result", function (result) {
+      function decorate() {
+        observer.disconnect();
+        each(result, ":scope > p:first-child, .kl-answer, .kl-summary", markNumbers);
+        tables(result);
+        observer.observe(result, { childList: true, subtree: true, characterData: true });
+      }
+      var observer = new MutationObserver(decorate);
+      decorate();
+    });
+  });
+})();
+
+</script>
 </head>
 <body>
-<header class="site-header"><div class="wrap"><a class="site-name" href="./">くらしラボ計算帳</a><span class="site-tagline">人生の節目で出てくる数字を、出典つきの式で計算する</span></div></header>
-<main class="wrap">
+<a class="skip-link" href="#main">本文へ進む</a>
+<header class="site-header"><div class="wrap"><a class="site-name" href="./"><span class="site-mark" aria-hidden="true">＝</span>くらしラボ計算帳</a><span class="site-tagline">人生の節目で出てくる数字を、出典つきの式で計算する</span></div></header>
+<main class="wrap" id="main" tabindex="-1">
 <section class="hero">
+<p class="eyebrow">暮らしの「いくら・どれくらい」を計算</p>
 <h1>くらしラボ計算帳</h1>
 <p>防災の備蓄、実家の片付け、法要の日程、有給休暇、食費、引越しなど、暮らしの節目で出てくる数字を自分の条件で計算するツール集です。式の前提と出典を各ページに載せています。</p>
 <p><a class="kl-button" href="keisan/">計算ツールの一覧を開く</a></p>
 </section>
 <section class="cat-block">
 <h2>カテゴリ</h2>
-<ul class="page-list">
+<ul class="page-list category-entry-list">
 <li><a href="keisan/bosai/">防災と停電</a><p>家族の人数と日数から備蓄の量を出し、停電のときにポータブル電源で使える時間の目安を計算します。</p></li>
 <li><a href="keisan/jikka/">実家の片付け</a><p>遺品整理や不用品の処分にかかる費用の目安と、自分でやる場合との比べ方を計算します。</p></li>
 <li><a href="keisan/kankon/">冠婚葬祭</a><p>法要の日付と、香典やお布施の目安を、故人との関係や年代から調べます。</p></li>
@@ -465,6 +595,8 @@
 <li><a href="keisan/tetsuzuki/">手続き暦(介護と相続の期限)</a><p>親の介護休業や、亡くなったあとの手続き、相続登記、空き家特例の期限を、起点の日付から日付つきの一覧にする</p></li>
 <li><a href="keisan/care/">ケア職の計算帳</a><p>介護福祉士やケアマネの受験時期、看護師のボーナス後の退職日、保育士の年度末退職の伝え方を、日付と日数から出す</p></li>
 <li><a href="keisan/shinro/">進路とお金の計算帳(通信制と不登校)</a><p>通信制高校への転入と卒業時期、サポート校を足した3年間の費用、学校に行けない間の学び方の月額を出す</p></li>
+<li><a href="keisan/koikatsu/">恋愛と婚活のお金</a><p>マッチングアプリの月額を総額と1日あたりに直し、結婚相談所の初期費用と月会費と成婚料を足して、婚活にかかるお金を期間ごとに計算します。</p></li>
+<li><a href="keisan/deai/">出会い系サイトの料金(18歳以上)</a><p>出会い系サイトのポイント制の料金を1通あたりの円に直し、年齢確認と届出の確かめ方を公開情報から整理します。18歳未満の方は利用できません。</p></li>
 </ul>
 </section>
 
